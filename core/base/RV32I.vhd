@@ -3,7 +3,8 @@ use ieee.std_logic_1164.all;
 
 package RV32I is
 -- TODO: Cleanup with Records maybe
-  constant XLEN : integer := 32
+  constant XLEN : natural := 32;
+  constant NUM_REG : natural := 32;
   --                             R-type
   -- [31 funct7 25][24 rs2 20][19 rs1 15][14 funct3 13][11 rd 7][6 opcode 0]
   --                            I-type
@@ -19,7 +20,7 @@ package RV32I is
   -- [31 imm[20|10:1|11|19:12] 12][11 rd 7][6 opcode 0]
 
   -- OP CODES
-  constant OP           : std_logic_vector(6 downto 0) := b"0110011";
+  constant OP_OP        : std_logic_vector(6 downto 0) := b"0110011";
   constant OP_JALR      : std_logic_vector(6 downto 0) := b"1100111";
   constant OP_IMM       : std_logic_vector(6 downto 0) := b"0010011";
   constant OP_LUI       : std_logic_vector(6 downto 0) := b"0110111";
@@ -32,7 +33,7 @@ package RV32I is
   constant OP_SYSTEM    : std_logic_vector(6 downto 0) := b"1110011";
 
   -- R-type and I-type functs
-  constant FUNCT3_ADD   : std_logic_vector(2 downto 0) := b"000";
+  constant FUNCT3_ADDSUB: std_logic_vector(2 downto 0) := b"000";
   constant FUNCT7_ADD   : std_logic_vector(6 downto 0) := b"0000000";
   constant FUNCT7_SUB   : std_logic_vector(6 downto 0) := b"0100000";
   constant FUNCT3_SLL   : std_logic_vector(2 downto 0) := b"001";

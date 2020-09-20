@@ -5,50 +5,59 @@ use work.RV32I.all;
 
 entity decoder is
   port(
-    OPCODE : in std_logic_vector(6 downto 0);
-    R_TYPE : out std_logic;
-    I_TYPE : out std_logic;
-    S_TYPE : out std_logic;
-    B_TYPE : out std_logic;
-    U_TYPE : out std_logic;
-    J_TYPE : out std_logic
+    OPCODE : in  std_logic_vector(6 downto 0);
+    WE     : out std_logic;
+    OP     : out std_logic;
+    IMM    : out std_logic;
+    LOAD   : out std_logic;
+    STORE  : out std_logic;
+    JUMP   : out std_logic;
+    JALR   : out std_logic;
+    BRANCH : out std_logic;
+    AUIPC  : out std_logic;
+    LUI    : out std_logic
   );
 end entity decoder;
 
 architecture rtl of decoder is
 
-  signal type_vector : std_logic_vector(5 downto 0);
-
   -- RV32I INSTRUCTIONS
-  constant r_type : positive := 0;
-  constant i_type : positive := 1;
-  constant s_type : positive := 2;
-  constant b_type : positive := 3;
-  constant u_type : positive := 4;
-  constant j_type : positive := 5;
+  signal s_op          : std_logic;
+  signal s_imm         : std_logic;
+  signal s_load        : std_logic;
+  signal s_store       : std_logic;
+  signal s_jump        : std_logic;
+  signal s_jalr        : std_logic;
+  signal s_branch      : std_logic;
+  signal s_auipc       : std_logic;
+  signal s_lui         : std_logic;
 
   -- EXTENSIONS
 
 begin
 
-  type_vector <=
-    "000001" when (OPCODE = OP) else
-      -- Maybe add i_type && r_type -> shift, i_type && s_type -> load, i_type && j_type -> jalr
-    "000010" when (OPCODE = OP_IMM) or (OPCODE = OP_LOAD) or (OPCODE = OP_JALR) else
-    "000100" when (OPCODE = OP_STORE) else
-    "001000" when (OPCODE = OP_BRANCH) else
-    "010000" when (OPCODE = OP_LUI) or (OPCODE = OP_AUIPC) else
-    "100000" when (OPCODE = OP_JAL) else
-    "000000" when others;
+  WE <= s_branch nor s_store;
 
-  -- RV32I INSTRUCTIONS
-  R_TYPE <= type_vector(r_type);
-  I_TYPE <= type_vector(i_type);
-  S_TYPE <= type_vector(s_type);
-  B_TYPE <= type_vector(b_type);
-  U_TYPE <= type_vector(u_type);
-  J_TYPE <= type_vector(j_type);
+  -- Decode
+  s_op     <= '1' when (OPCODE = OP_OP)     else '0';
+  s_imm    <= '1' when (OPCODE = OP_IMM)    else '0';
+  s_load   <= '1' when (OPCODE = OP_LOAD)   else '0';
+  s_store  <= '1' when (OPCODE = OP_STORE)  else '0';
+  s_jump   <= '1' when (OPCODE = OP_JAL)    else '0';
+  s_jalr   <= '1' when (OPCODE = OP_JALR)   else '0';
+  s_branch <= '1' when (OPCODE = OP_BRANCH) else '0';
+  s_auipc  <= '1' when (OPCODE = OP_AUIPC)  else '0';
+  s_lui    <= '1' when (OPCODE = OP_LUI)    else '0';
 
-  -- EXTENSIONS
+  -- Mapping
+  OP      <= s_op;
+  IMM     <= s_imm;
+  LOAD    <= s_load;
+  STORE   <= s_store;
+  JUMP    <= s_jump;
+  JALR    <= s_jalr;
+  BRANCH  <= s_branch;
+  AUIPC   <= s_auipc;
+  LUI     <= s_lui;
 
 end architecture rtl;

@@ -14,7 +14,6 @@ entity datapath is
         LOAD     : out std_logic;
         STORE    : out std_logic;
         PC_OUT   : out std_logic_vector(XLEN - 1 downto 0)
-        -- TODO EXEPTION!!
   );
 end datapath;
 
@@ -58,12 +57,12 @@ architecture rtl of datapath is
   -- wb
   signal wb_res      : std_logic_vector(XLEN-1 downto 0);
   signal rd_in       : std_logic_vector(XLEN-1 downto 0);
+
 begin
   --------
   -- PC --
   --------
 
-  -- Fixme:
   process(CLK,RESET)
   begin
     if RESET = '1' then
@@ -140,7 +139,7 @@ begin
                    DATA_IN                                                        when FUNCT3_LW,
                    std_logic_vector(resize(unsigned(DATA_IN(7 downto 0)), XLEN))  when FUNCT3_LBU,
                    std_logic_vector(resize(unsigned(DATA_IN(15 downto 0)), XLEN)) when FUNCT3_LHU,
-                   (others => '-')                                                when others;
+                   (others => 'Z')                                                when others;
 
   ---------
   -- ALU --
@@ -178,7 +177,7 @@ begin
   -- Memory Out --
   ----------------
 
-  ADDR_OUT <= alu_res when ((s_load = '1') or (s_store = '1')) else (others => '0');
+  ADDR_OUT <= alu_res when ((s_load = '1') or (s_store = '1')) else (others => 'Z');
 
   process(s_store, funct3)
   begin
@@ -187,12 +186,20 @@ begin
         when FUNCT3_SB => DATA_OUT <= zero(XLEN-1 downto 8) & regfile_op2(7 downto 0);
         when FUNCT3_SH => DATA_OUT <= zero(XLEN-1 downto 16) & regfile_op2(15 downto 0);
         when FUNCT3_SW => DATA_OUT <= regfile_op2;
-        when others => DATA_OUT <= (others => '-');
+        when others => DATA_OUT <= (others => 'Z');
       end case;
     end if;
   end process;
 
   LOAD <= s_load;
-  STORE <= s_store;
+  STORE <= s_store
+
+  -----------------------
+  -- EXCEPTION HANDLER --
+  -----------------------
+  -- load at x0 must be ditched.
+  -- misaligned exeption: Jump, JALR, Branch if success. TODO: bit 1 and 0 must be checked on PC + offset, if either one is 1 then there is a misalignment
+  --                      Note: If does not supports misaligned data (packed structs) Load and Store can cause this kind of exception for target address.
+
 
 end architecture rtl;

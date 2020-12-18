@@ -3,14 +3,21 @@ use ieee.math_real.all;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-entity dmem is
-  port ( addr       : in     std_logic_vector(31 downto 0);
-         data       : inout  std_logic_vector(31 downto 0);
-         cs, oe, we : in     std_logic  -- Chip select, output enable, write enable
-  );
-end;
+entity dcache is
+  port ( -- Interface with core
+         addr_core : in    std_logic_vector(XLEN-1 downto 0); -- Address specified by core to store/load
+         data_core : inout std_logic_vector(XLEN-1 downto 0); -- Data from or to core
+         oe, we    : in    std_logic                          -- output enable, write enable
 
-architecture ram OF dmem IS
+         -- Interface with System
+         addr_cache : inout std_logic_vector(XLEN-1 downto 0);   -- Address load/store in cache
+         data_cache : inout std_logic_vector(XLEN-1 downto 0);   -- data to store/send
+         rreq, wreq : out   std_logic;                           -- read request: request a data read from missed cache; write request: request to write new data to from cache to memory
+         ack        : in    std_logic                            -- Acknowledge of the request
+  );
+end entity dcache;
+
+architecture ram of dcache is
 
   -- BYTE_SIZE: Number of bits in a byte
   constant BYTE_SIZE : positive := 8;

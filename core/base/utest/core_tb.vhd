@@ -14,6 +14,7 @@ architecture tb of core_tb is
   constant period : time := 20 ns;
   constant half_period : time := 10 ns;
 
+  signal begin_simultation : boolean := false;
   signal clk      : std_logic := '0';
   signal reset    : std_logic;
   signal inst     : std_logic_vector(31 downto 0);
@@ -24,9 +25,34 @@ architecture tb of core_tb is
   signal store    : std_logic;
   signal pc_out   : std_logic_vector(XLEN - 1 downto 0);
 
-  signal dmem_data : std_logic_vector(XLEN - 1 downto 0);
+  signal cache_addr : std_logic_vector(XLEN - 1 downto 0);
+  signal cache_data : std_logic_vector(XLEN - 1 downto 0);
 
 begin
+
+  -- Clock process;
+  clk <= not clk after half_period when begin_simulation = true;
+
+  -- Cache
+  cache : entity work.cache(ram)
+    port ( addr => cache_addr,
+           data => cache_data,
+           cs => '1',
+           oe => load,
+           we => store
+    );
+
+  cache_op: process(clk)
+  begin
+
+    if (rising_edge(clk)) and (begin_simulation = true) then
+      cache_data <=
+    elsif begin_simulation = false then
+      -- Read file
+      -- Load memory
+      begin_simulation := true;
+    end if;
+  end process;
 
   core : entity work.datapath(rtl)
     port map(
@@ -40,27 +66,5 @@ begin
       STORE    => store,
       PC_OUT   => pc_out
     );
-
-    inst_mem : entity work.imem(rom)
-      port map(
-        addr => pc_out,
-        data => inst
-      );
-
-    dmem_data <= data_out when store = '1' else
-                 data_in when load = '1' else
-                 (others => 'Z');
-
-    data_mem : entity work.dmem(ram)
-      port ( addr => addr_out,
-             data => dmem_data,
-             cs => '1',
-             oe => load,
-             we => store
-      );
-
-    -- Clock process;
-    clk <= not clk after half_period;
-
 
 end architecture tb;

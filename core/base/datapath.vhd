@@ -192,7 +192,7 @@ begin
   end process;
 
   LOAD <= s_load;
-  STORE <= s_store
+  STORE <= s_store;
 
   -----------------------
   -- EXCEPTION HANDLER --

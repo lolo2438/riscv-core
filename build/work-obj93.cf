@@ -1,0 +1,21 @@
+v 4
+file . "../cpu/core/core.vhd" "bc662002f93f2d0aecbe943fc619ae33842ed0c9" "20210110184234.480":
+  entity core at 1( 0) + 0 on 279;
+  architecture rtl of core at 20( 551) + 0 on 280;
+file . "../cpu/core/decoder.vhd" "b36e32e54a35a5be28ff17fed9e746440daccbe8" "20210110184234.380":
+  entity decoder at 1( 0) + 0 on 275;
+  architecture rtl of decoder at 22( 443) + 0 on 276;
+file . "../cpu/core/RV32I.vhd" "adb978229068d69cdc0414bdb455ef59abf9a930" "20210110184234.343":
+  package rv32i at 1( 0) + 0 on 272;
+file . "../cpu/core/regfile.vhd" "77dc5192a82780ae73a9f9c2737523ae2ecc35ac" "20210110184234.357":
+  entity regfile at 1( 0) + 0 on 273;
+  architecture rtl of regfile at 20( 472) + 0 on 274;
+file . "../cpu/core/alu/alu.vhd" "40691629d7e8c15e4afcc98feaadfd1284d1df6f" "20210110184234.413":
+  entity alu at 1( 0) + 0 on 277;
+  architecture rtl of alu at 26( 770) + 0 on 278;
+file . "../test/testbenches/cpu/alu_tb.vhd" "a727087c74612ce5bfeaf61f5beef3ddd6feb14d" "20210110142940.290":
+  entity alu_tb at 1( 0) + 0 on 170;
+  architecture tb of alu_tb at 11( 143) + 0 on 171;
+file . "../test/testbenches/cpu/core_tb.vhd" "77790a461116984e34a0f27113994c7e49756236" "20210110184234.559":
+  entity core_tb at 1( 0) + 0 on 281;
+  architecture tb of core_tb at 12( 176) + 0 on 282;

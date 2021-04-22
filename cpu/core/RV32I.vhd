@@ -1,9 +1,11 @@
 library ieee;
 use ieee.std_logic_1164.all;
+use ieee.math_real.all;
 
 package RV32I is
 -- TODO: Cleanup with Records maybe
   constant XLEN : natural := 32;
+  constant XLEN_BIT : natural := natural(ceil(log2(real(XLEN))));
   constant NUM_REG : natural := 32;
   --                             R-type
   -- [31 funct7 25][24 rs2 20][19 rs1 15][14 funct3 13][11 rd 7][6 opcode 0]

@@ -26,7 +26,7 @@ end alu;
 architecture rtl of alu is
 
   constant zero : std_logic_vector(XLEN-1 downto 0) := (others => '0');
-
+  
   signal src1            : std_logic_vector(XLEN-1 downto 0);
   signal src2            : std_logic_vector(XLEN-1 downto 0);
 
@@ -37,7 +37,7 @@ architecture rtl of alu is
   signal u_is_lesser     : std_logic;
   signal is_equal        : std_logic;
 
-  signal shamt           : natural;
+  signal shamt           : integer range 0 to XLEN;
 
   signal shift_left_res  : std_logic_vector(XLEN-1 downto 0);
   signal shift_right_res : std_logic_vector(XLEN-1 downto 0);
@@ -45,6 +45,11 @@ architecture rtl of alu is
   signal result          : std_logic_vector(XLEN-1 downto 0);
 
   signal branch_res      : std_logic;
+  
+  signal branch_slt_res  : std_logic;
+  signal slt_res         : std_logic;
+  signal branch_sltu_res : std_logic;
+  signal sltu_res        : std_logic;
 
 begin
 
@@ -54,56 +59,39 @@ begin
   src2 <= IMM_VAL when (OP = '0') else OP2;
 
   -- Adder
-  adder_src1 <= (unsigned((not src1)) + 1) when (((OP = '1') or (IMM = '1')) and (FUNCT7_BIT = '1')) else unsigned(src1); -- Todo : fast complement 1 circuit
+  adder_src1 <= (('0' & unsigned((not src1))) + 1) when (((OP = '1') or (IMM = '1')) and (FUNCT7_BIT = '1')) else ('0' & unsigned(src1));
 
-  add_res <= std_logic_vector(adder_src1(XLEN-1 downto 0) + unsigned(src2));
+  add_res <= std_logic_vector(adder_src1(XLEN-1 downto 0) + ('0' & unsigned(src2)));
 
   --Shift circuit:
-  shamt <= to_integer(unsigned(src2(4 downto 0)));
+  -- TODO: REMOVE CIRCUIT AND IMPLEMENT THIS:
+  --
+  -- SHIFT RIGHT LOGICAL = 
+  -- SHIFT LEFT LOGICAL =
+  
+  shamt <= to_integer(unsigned(src2(4 downto 0))); --FIXME: Interger conversion error 
 
   shift_right_res <= std_logic_vector(shift_right(signed(src1), shamt)) when (FUNCT7_BIT = '1') else
                      std_logic_vector(shift_right(unsigned(src1), shamt));
+                    
+  shift_left_res <= std_logic_vector(shift_left(unsigned(src1), shamt)); 
 
-  shift_left_res <= std_logic_vector(shift_left(unsigned(src1), shamt));
-
-  -- Slt
-  -- Only uses: OP, IMM, BRANCH
-  -- Need the 2 conditions because when Branch = 1 we must use OP1 and OP2
-  SLT:
-  process(IMM,IMM_VAL,OP1,OP2)
-  begin
-    if IMM = '1' then
-      if signed(OP1) < signed(IMM_VAL) then
-        s_is_lesser <= '1';
-      else
-        s_is_lesser <= '0';
-      end if;
-    else
-      if signed(OP1) < signed(OP2) then
-        s_is_lesser <= '1';
-      else
-        s_is_lesser <= '0';
-      end if;
-    end if;
-  end process;
-
-  SLTU:
-  process(IMM,IMM_VAL,OP1,OP2)
-  begin
-    if IMM = '1' then
-      if unsigned(OP1) < unsigned(IMM_VAL) then
-        u_is_lesser <= '1';
-      else
-        u_is_lesser <= '0';
-      end if;
-    else
-      if unsigned(OP1) < unsigned(OP2) then
-        u_is_lesser <= '1';
-      else
-        u_is_lesser <= '0';
-      end if;
-    end if;
-  end process;
+  -- SLT 
+  
+  branch_slt_res <= '1' when ((signed(OP1)) < (signed(OP2))) else '0';
+  
+  slt_res <= '1' when ((signed(src1)) < (signed(src2))) else '0'; -- FIXME: Does not like the <
+  
+  s_is_lesser <= branch_slt_res when (BRANCH = '1') else slt_res;
+                 
+  
+  -- SLTU
+  branch_sltu_res <= '1' when ((unsigned(OP1)) < (unsigned(OP2))) else '0';
+  
+  sltu_res <= '1' when ((unsigned(src1)) < (unsigned(src2))) else '0'; -- FIXME: Does not like the <
+  
+  u_is_lesser <= branch_sltu_res when (BRANCH = '1') else sltu_res;
+  
 
   -- Selector
   with funct3 select

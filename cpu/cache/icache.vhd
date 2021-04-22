@@ -19,4 +19,11 @@ architecture cache OF icache IS
 
 begin
 
+-- Strategy:
+-- 
+--
+--
+
+
+
 end cache;

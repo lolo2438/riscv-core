@@ -9,7 +9,7 @@ entity shifter is
     SHAMT : in  std_logic_vector(XLEN_BIT-1 downto 0);
     LR    : in  std_logic;                          -- Shift Left (0)/Right (1)
     ARI   : in  std_logic;                          -- Arithmetic shift (1) only for shift right
-    RES   : out std_logic_vector(XLEN-1 downto 0);  -- Shifted result
+    RES   : out std_logic_vector(XLEN-1 downto 0)  -- Shifted result
   );
 end entity shifter;
 
